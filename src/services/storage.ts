@@ -277,7 +277,28 @@ export class StorageService {
 
   static getOwnerFunds(): OwnerFundEntry[] {
     const data = localStorage.getItem(STORAGE_KEYS.OWNER_FUNDS);
-    return data ? JSON.parse(data) : initialOwnerFunds;
+    if (!data) {
+      this.saveOwnerFunds(initialOwnerFunds);
+      return initialOwnerFunds;
+    }
+    try {
+      const parsed: OwnerFundEntry[] = JSON.parse(data);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        this.saveOwnerFunds(initialOwnerFunds);
+        return initialOwnerFunds;
+      }
+      const existingIds = new Set(parsed.map(f => f.id || f.referenceNo));
+      const missing = initialOwnerFunds.filter(f => !existingIds.has(f.id) && !existingIds.has(f.referenceNo));
+      if (missing.length > 0) {
+        const merged = [...parsed, ...missing];
+        this.saveOwnerFunds(merged);
+        return merged;
+      }
+      return parsed;
+    } catch {
+      this.saveOwnerFunds(initialOwnerFunds);
+      return initialOwnerFunds;
+    }
   }
 
   static saveOwnerFunds(funds: OwnerFundEntry[]): void {
