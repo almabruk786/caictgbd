@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Captain Air — Data Reset Tool</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 36px;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+    h1 { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-bottom: 6px; }
+    p { font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
+    .expense-list {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .expense-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 6px 0;
+      border-bottom: 1px solid #1e293b;
+      font-size: 12px;
+    }
+    .expense-row:last-child { border-bottom: none; }
+    .expense-name { color: #cbd5e1; }
+    .expense-amount { color: #f43f5e; font-weight: 700; white-space: nowrap; margin-left: 12px; }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: white;
+      box-shadow: 0 8px 20px rgba(220,38,38,0.3);
+    }
+    .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(220,38,38,0.4); }
+    .btn-success {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: white;
+      box-shadow: 0 8px 20px rgba(5,150,105,0.3);
+      margin-top: 10px;
+      display: none;
+    }
+    .status {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+    }
+    .status.success { background: #064e3b; color: #6ee7b7; border: 1px solid #065f46; }
+    .status.error { background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0 0;
+      font-weight: 800;
+      font-size: 13px;
+      color: #e2e8f0;
+      border-top: 1px solid #334155;
+      margin-top: 6px;
+    }
+    .logo { font-size: 13px; color: #38bdf8; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">✈ Captain Air International</div>
+    <h1>Data Reset Tool</h1>
+    <p>This will clear ALL existing data and load the correct August 2026 office expenses.</p>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display:block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;">
+        Starting Cash in Hand (৳)
+      </label>
+      <input 
+        type="number" 
+        id="startingCashInput" 
+        value="0" 
+        placeholder="0" 
+        style="width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: #f8fafc; font-weight: 700; font-size: 14px; outline: none;"
+      />
+      <span style="font-size: 11px; color: #64748b; margin-top: 4px; display: block;">Set to 0 if starting with no office cash</span>
+    </div>
+
+    <button class="btn btn-danger" onclick="resetData()">
+      🗑️ Clear Old Data & Load New Expenses
+    </button>
+    <button class="btn btn-success" id="openAppBtn" onclick="openApp()">
+      ✅ Done! Open App →
+    </button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const EXPENSES = [
+      { date: '2026-08-01', description: 'Office Advance Payment',   category: 'Office Rent',     amount: 80000, paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-01', description: 'Previous Office Furniture Purchase', category: 'Office Supplies', amount: 55000, paymentMethod: 'CASH', reference: '' },
+      { date: '2026-08-01', description: 'Office Paint Work',         category: 'Maintenance',     amount: 4700,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-05', description: 'Electricity Bill',          category: 'Electricity',     amount: 2000,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-06', description: 'Office Furniture Repair',   category: 'Maintenance',     amount: 6000,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-15', description: 'Rapoo Keyboard',            category: 'Office Supplies', amount: 1900,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-15', description: 'Office Desktop Computer',   category: 'Office Supplies', amount: 15000, paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-15', description: 'Tenda Wifi Dongle',         category: 'Office Supplies', amount: 600,   paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-15', description: 'Office Decoration',         category: 'Maintenance',     amount: 7500,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-15', description: 'Thai Glass Repair',         category: 'Maintenance',     amount: 3500,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-15', description: 'Table Glass and Lock',      category: 'Office Supplies', amount: 5500,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-16', description: 'Office Trade License',      category: 'Other',           amount: 5500,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-23', description: 'Walton Multiplug',          category: 'Office Supplies', amount: 600,   paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-23', description: 'Camera DVR',                category: 'Office Supplies', amount: 1800,  paymentMethod: 'CASH',          reference: '' },
+      { date: '2026-08-24', description: 'Printer & Brand Multiplug', category: 'Office Supplies', amount: 18600, paymentMethod: 'CASH',          reference: 'B-3633965' },
+      { date: '2026-08-25', description: 'Power Guard UPS 650VA',     category: 'Office Supplies', amount: 3600,  paymentMethod: 'CASH',          reference: 'B-3636990' },
+      { date: '2026-08-28', description: 'Dell Laptop',               category: 'Office Supplies', amount: 34000, paymentMethod: 'CASH',          reference: '' },
+    ];
+
+    const STORAGE_KEYS = [
+      'cai_v2_settings', 'cai_v2_users', 'cai_v2_accounts', 'cai_v2_customers',
+      'cai_v2_suppliers', 'cai_v2_tickets', 'cai_v2_income', 'cai_v2_expenses',
+      'cai_v2_owner_funds', 'cai_v2_products', 'cai_v2_purchases',
+      'cai_v2_transactions', 'cai_v2_activity_logs', 'cai_v2_notifications', 'cai_v2_current_user'
+    ];
+
+    // Render list
+    const list = document.getElementById('expenseList');
+    let total = 0;
+    EXPENSES.forEach(e => {
+      total += e.amount;
+      const row = document.createElement('div');
+      row.className = 'expense-row';
+      row.innerHTML = `<span class="expense-name">${e.date.slice(5).replace('-', '/')} — ${e.description}</span><span class="expense-amount">-৳${e.amount.toLocaleString()}</span>`;
+      list.appendChild(row);
+    });
+    const totRow = document.createElement('div');
+    totRow.className = 'total-row';
+    totRow.innerHTML = `<span>Total (17 entries)</span><span style="color:#f43f5e">৳${total.toLocaleString()}</span>`;
+    list.appendChild(totRow);
+
+    function resetData() {
+      try {
+        // Clear all old data
+        STORAGE_KEYS.forEach(k => localStorage.removeItem(k));
+
+        // Build expense entries
+        const expenses = EXPENSES.map((e, i) => ({
+          id: `exp-init-${i + 1}`,
+          voucherNo: `EXP-2026-${String(i + 1).padStart(5, '0')}`,
+          date: e.date,
+          category: e.category,
+          description: e.description,
+          amount: e.amount,
+          accountId: 'acc-cash',
+          paymentMethod: e.paymentMethod,
+          supplierId: '',
+          reference: e.reference,
+          notes: '',
+          createdBy: 'Captain Boss (Owner)',
+          createdAt: e.date + 'T00:00:00.000Z',
+        }));
+
+        // Build matching transactions
+        const transactions = EXPENSES.map((e, i) => ({
+          id: `txn-init-${i + 1}`,
+          txnNumber: `TXN-2026-${String(i + 1).padStart(5, '0')}`,
+          date: e.date,
+          type: 'EXPENSE',
+          category: e.category,
+          description: e.description,
+          amount: e.amount,
+          accountId: 'acc-cash',
+          accountName: 'Office Cash',
+          paymentMethod: e.paymentMethod,
+          reference: `EXP-2026-${String(i + 1).padStart(5, '0')}`,
+          createdBy: 'Captain Boss (Owner)',
+          createdAt: e.date + 'T00:00:00.000Z',
+        }));
+
+        // Cash account with opening balance defaulting to 0
+        const startingCash = Number(document.getElementById('startingCashInput')?.value) || 0;
+        const accounts = [{
+          id: 'acc-cash',
+          name: 'Office Cash',
+          type: 'OFFICE_CASH',
+          openingBalance: startingCash,
+          currentBalance: startingCash,
+          status: 'ACTIVE',
+          notes: 'Main office cash account',
+        }];
+
+        localStorage.setItem('cai_v2_expenses', JSON.stringify(expenses));
+        localStorage.setItem('cai_v2_income', JSON.stringify([]));
+        localStorage.setItem('cai_v2_transactions', JSON.stringify(transactions));
+        localStorage.setItem('cai_v2_accounts', JSON.stringify(accounts));
+
+        showStatus('success', `✅ Done! ${expenses.length} expense entries loaded. Cash in Hand set to ৳${startingCash.toLocaleString()}`);
+        document.getElementById('openAppBtn').style.display = 'block';
+      } catch (err) {
+        showStatus('error', '❌ Error: ' + err.message);
+      }
+    }
+
+    function openApp() {
+      window.location.href = 'http://localhost:5173/';
+    }
+
+    function showStatus(type, msg) {
+      const el = document.getElementById('status');
+      el.className = 'status ' + type;
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
