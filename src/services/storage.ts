@@ -1180,4 +1180,77 @@ export class StorageService {
       return { success: false, message: err.message || 'Failed to sync with Firestore' };
     }
   }
+
+  /**
+   * Pull complete database from Cloud Firestore into LocalStorage
+   */
+  static async pullFromFirestore(): Promise<{ success: boolean; message: string; count?: number }> {
+    if (!db) {
+      return { success: false, message: 'Firebase Firestore is not initialized.' };
+    }
+
+    try {
+      let totalFetched = 0;
+
+      const fundsSnap = await getDocs(collection(db, 'ownerFunds'));
+      if (!fundsSnap.empty) {
+        const funds = fundsSnap.docs.map(d => d.data() as OwnerFundEntry);
+        this.saveOwnerFunds(funds);
+        totalFetched += funds.length;
+      }
+
+      const incSnap = await getDocs(collection(db, 'income'));
+      if (!incSnap.empty) {
+        const inc = incSnap.docs.map(d => d.data() as IncomeEntry);
+        this.saveIncome(inc);
+        totalFetched += inc.length;
+      }
+
+      const expSnap = await getDocs(collection(db, 'expenses'));
+      if (!expSnap.empty) {
+        const exp = expSnap.docs.map(d => d.data() as ExpenseEntry);
+        this.saveExpenses(exp);
+        totalFetched += exp.length;
+      }
+
+      const tktSnap = await getDocs(collection(db, 'tickets'));
+      if (!tktSnap.empty) {
+        const tkts = tktSnap.docs.map(d => d.data() as TicketSale);
+        this.saveTickets(tkts);
+        totalFetched += tkts.length;
+      }
+
+      const accSnap = await getDocs(collection(db, 'accounts'));
+      if (!accSnap.empty) {
+        const accs = accSnap.docs.map(d => d.data() as Account);
+        this.saveAccounts(accs);
+        totalFetched += accs.length;
+      }
+
+      const txnSnap = await getDocs(collection(db, 'transactions'));
+      if (!txnSnap.empty) {
+        const txns = txnSnap.docs.map(d => d.data() as Transaction);
+        this.saveTransactions(txns);
+        totalFetched += txns.length;
+      }
+
+      const custSnap = await getDocs(collection(db, 'customers'));
+      if (!custSnap.empty) {
+        const custs = custSnap.docs.map(d => d.data() as Customer);
+        this.saveCustomers(custs);
+        totalFetched += custs.length;
+      }
+
+      const supSnap = await getDocs(collection(db, 'suppliers'));
+      if (!supSnap.empty) {
+        const sups = supSnap.docs.map(d => d.data() as Supplier);
+        this.saveSuppliers(sups);
+        totalFetched += sups.length;
+      }
+
+      return { success: true, message: `Successfully synced ${totalFetched} records from Cloud Firestore!`, count: totalFetched };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Failed to pull from Firestore' };
+    }
+  }
 }

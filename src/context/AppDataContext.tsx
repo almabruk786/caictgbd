@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import {
   Account,
   Transaction,
@@ -52,6 +52,8 @@ interface AppDataContextType {
   refreshData: () => void;
   exportDatabaseJSON: () => void;
   importDatabaseJSON: (jsonStr: string) => boolean;
+  syncToCloud: () => Promise<void>;
+  pullFromCloud: () => Promise<void>;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -90,6 +92,14 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setOwnerFunds(StorageService.getOwnerFunds());
     setSettings(StorageService.getSettings());
   }, []);
+
+  useEffect(() => {
+    StorageService.pullFromFirestore().then(res => {
+      if (res.success && (res.count || 0) > 0) {
+        refreshData();
+      }
+    }).catch(() => {});
+  }, [refreshData]);
 
   const setDateRangePreset = (preset: DateRangePreset, customStart?: string, customEnd?: string) => {
     if (preset === 'custom' && customStart && customEnd) {
@@ -271,6 +281,25 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  const syncToCloud = async () => {
+    const res = await StorageService.syncAllToFirestore();
+    if (res.success) {
+      showToast(res.message, 'success');
+    } else {
+      showToast(res.message, 'error');
+    }
+  };
+
+  const pullFromCloud = async () => {
+    const res = await StorageService.pullFromFirestore();
+    if (res.success) {
+      refreshData();
+      showToast(res.message, 'success');
+    } else {
+      showToast(res.message, 'error');
+    }
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -303,6 +332,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         refreshData,
         exportDatabaseJSON,
         importDatabaseJSON,
+        syncToCloud,
+        pullFromCloud,
       }}
     >
       {children}
