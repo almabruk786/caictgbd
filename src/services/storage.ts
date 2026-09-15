@@ -111,7 +111,26 @@ export class StorageService {
 
   static getAccounts(): Account[] {
     const data = localStorage.getItem(STORAGE_KEYS.ACCOUNTS);
-    return data ? JSON.parse(data) : initialAccounts;
+    if (!data) {
+      this.saveAccounts(initialAccounts);
+      return initialAccounts;
+    }
+    try {
+      const parsed: Account[] = JSON.parse(data);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        this.saveAccounts(initialAccounts);
+        return initialAccounts;
+      }
+      const officeAcc = parsed.find(a => a.id === 'acc-cash');
+      if (officeAcc && officeAcc.currentBalance === 0 && initialAccounts[0]?.currentBalance !== 0) {
+        officeAcc.currentBalance = initialAccounts[0].currentBalance;
+        this.saveAccounts(parsed);
+      }
+      return parsed;
+    } catch {
+      this.saveAccounts(initialAccounts);
+      return initialAccounts;
+    }
   }
 
   static saveAccounts(accounts: Account[]): void {
