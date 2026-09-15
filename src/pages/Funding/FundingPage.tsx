@@ -251,7 +251,7 @@ export const FundingPage: React.FC<FundingPageProps> = () => {
       </div>
 
       {/* 2. 4 Summary Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Received */}
         <div
           onClick={() => setTypeFilter('INJECTION')}

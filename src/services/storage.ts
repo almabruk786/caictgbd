@@ -198,7 +198,28 @@ export class StorageService {
 
   static getIncome(): IncomeEntry[] {
     const data = localStorage.getItem(STORAGE_KEYS.INCOME);
-    return data ? JSON.parse(data) : initialIncome;
+    if (!data) {
+      this.saveIncome(initialIncome);
+      return initialIncome;
+    }
+    try {
+      const parsed: IncomeEntry[] = JSON.parse(data);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        this.saveIncome(initialIncome);
+        return initialIncome;
+      }
+      const existingIds = new Set(parsed.map(i => i.id || i.voucherNo));
+      const missing = initialIncome.filter(i => !existingIds.has(i.id) && !existingIds.has(i.voucherNo));
+      if (missing.length > 0) {
+        const merged = [...parsed, ...missing];
+        this.saveIncome(merged);
+        return merged;
+      }
+      return parsed;
+    } catch {
+      this.saveIncome(initialIncome);
+      return initialIncome;
+    }
   }
 
   static saveIncome(income: IncomeEntry[]): void {
@@ -207,7 +228,28 @@ export class StorageService {
 
   static getExpenses(): ExpenseEntry[] {
     const data = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-    return data ? JSON.parse(data) : initialExpenses;
+    if (!data) {
+      this.saveExpenses(initialExpenses);
+      return initialExpenses;
+    }
+    try {
+      const parsed: ExpenseEntry[] = JSON.parse(data);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        this.saveExpenses(initialExpenses);
+        return initialExpenses;
+      }
+      const existingIds = new Set(parsed.map(e => e.id || e.voucherNo));
+      const missing = initialExpenses.filter(e => !existingIds.has(e.id) && !existingIds.has(e.voucherNo));
+      if (missing.length > 0) {
+        const merged = [...parsed, ...missing];
+        this.saveExpenses(merged);
+        return merged;
+      }
+      return parsed;
+    } catch {
+      this.saveExpenses(initialExpenses);
+      return initialExpenses;
+    }
   }
 
   static saveExpenses(expenses: ExpenseEntry[]): void {
@@ -243,7 +285,28 @@ export class StorageService {
 
   static getTransactions(): Transaction[] {
     const data = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-    return data ? JSON.parse(data) : initialTransactions;
+    if (!data) {
+      this.saveTransactions(initialTransactions);
+      return initialTransactions;
+    }
+    try {
+      const parsed: Transaction[] = JSON.parse(data);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        this.saveTransactions(initialTransactions);
+        return initialTransactions;
+      }
+      const existingIds = new Set(parsed.map(t => t.id || t.txnNumber));
+      const missing = initialTransactions.filter(t => !existingIds.has(t.id) && !existingIds.has(t.txnNumber));
+      if (missing.length > 0) {
+        const merged = [...parsed, ...missing];
+        this.saveTransactions(merged);
+        return merged;
+      }
+      return parsed;
+    } catch {
+      this.saveTransactions(initialTransactions);
+      return initialTransactions;
+    }
   }
 
   static saveTransactions(txns: Transaction[]): void {

@@ -4,7 +4,6 @@ import { AppDataProvider } from './context/AppDataContext';
 import { ToastProvider } from './context/ToastContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { Navbar } from './components/layout/Navbar';
-import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 // Pages
 import { LoginPage } from './pages/Auth/LoginPage';
@@ -25,7 +24,7 @@ const AppContent: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  // If user is not logged in, render the executive cockpit login panel
+  // If user is not logged in, render the mechanical airline flying login panel
   if (!isAuthenticated) {
     return <LoginPage />;
   }
@@ -65,7 +64,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar Navigation Drawer */}
+      {/* Sidebar Navigation */}
       <Sidebar
         activeModule={activeModule}
         onNavigate={handleNavigate}
@@ -88,17 +87,10 @@ const AppContent: React.FC = () => {
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
 
-        {/* Dynamic Page Container with padding-bottom for mobile bottom navigation */}
-        <main className="flex-1 p-3 sm:p-4 lg:p-6 pb-24 lg:pb-8 max-w-7xl w-full mx-auto animate-fade-in">
+        {/* Dynamic Page Container */}
+        <main className="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto animate-fade-in">
           {renderActiveModule()}
         </main>
-
-        {/* Floating Thumb-Friendly Mobile Bottom Navigation Bar */}
-        <MobileBottomNav
-          activeModule={activeModule}
-          onNavigate={handleNavigate}
-          onOpenSidebar={() => setIsSidebarOpen(true)}
-        />
       </div>
     </div>
   );
