@@ -72,9 +72,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [settings, setSettings] = useState<CompanySettings>(StorageService.getSettings());
 
   // Date Range
-  const initialRange = getDateRangeFromPreset('thisMonth');
+  const initialRange = getDateRangeFromPreset('all');
   const [dateRange, setDateRange] = useState<DateRange>({
-    preset: 'thisMonth',
+    preset: 'all',
     startDate: initialRange.startDate,
     endDate: initialRange.endDate,
   });

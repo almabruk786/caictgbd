@@ -56,7 +56,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
     settings,
   } = useAppData();
 
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('thisMonth');
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
   const [chartTab, setChartViewTab] = useState<ChartViewTab>('cashflow');
   const [recentSearch, setRecentSearch] = useState('');
   const [activityTypeFilter, setActivityTypeFilter] = useState<'ALL' | 'INCOME' | 'EXPENSE' | 'FUNDING'>('ALL');
