@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { StorageService } from '../services/storage';
+import { ensureFirebaseAuth } from '../services/firebase';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -21,6 +22,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (session) {
       setCurrentUser(session);
       setIsAuthenticated(true);
+      ensureFirebaseAuth();
     }
   }, []);
 
@@ -29,6 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (res.success && res.user) {
       setCurrentUser(res.user);
       setIsAuthenticated(true);
+      ensureFirebaseAuth();
       return { success: true };
     }
     return { success: false, error: res.error || 'Authentication failed' };
