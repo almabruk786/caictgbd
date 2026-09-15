@@ -14,18 +14,14 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Zap,
   Clock,
   Navigation,
-  Globe2,
-  Cpu,
-  CheckCircle2,
 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
 
-  const [loginId, setLoginId] = useState('admin');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +34,6 @@ export const LoginPage: React.FC = () => {
   // Interactive Cockpit Toggles
   const [avionicsMaster, setAvionicsMaster] = useState(true);
   const [radarActive, setRadarActive] = useState(true);
-  const [secureCloud, setSecureCloud] = useState(true);
 
   useEffect(() => {
     const updateTime = () => {
@@ -64,18 +59,12 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     setTimeout(() => {
-      const res = login(loginId, password);
+      const res = login(loginId.trim(), password);
       if (!res.success) {
-        setError(res.error || 'Access Denied: Invalid Flight Authorization Credentials');
+        setError(res.error || 'Access Denied: Invalid Authorization Credentials');
         setIsLoading(false);
       }
-    }, 600);
-  };
-
-  const handleQuickLogin = (id: string, pass: string) => {
-    setLoginId(id);
-    setPassword(pass);
-    setError('');
+    }, 500);
   };
 
   return (
@@ -83,7 +72,6 @@ export const LoginPage: React.FC = () => {
       {/* ─────────────────────────────────────────────────────────────
           1. AVIATION NIGHT SKY & DYNAMIC RADAR BACKGROUND
       ────────────────────────────────────────────────────────────── */}
-      {/* Radial ambient glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(14,165,233,0.18),rgba(99,102,241,0.08),rgba(0,0,0,0))] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_50%_120%,rgba(16,185,129,0.12),rgba(0,0,0,0))] pointer-events-none" />
 
@@ -173,16 +161,17 @@ export const LoginPage: React.FC = () => {
                   <User className="w-3.5 h-3.5 text-sky-400" />
                   Flight Admin ID / Callsign
                 </span>
-                <span className="text-[10px] text-sky-400/80 font-bold">DEFAULT: admin</span>
+                <span className="text-[10px] text-slate-500 font-mono">AUTHORIZED ONLY</span>
               </label>
 
               <div className="relative">
                 <input
                   type="text"
                   required
+                  autoFocus
                   value={loginId}
                   onChange={e => setLoginId(e.target.value)}
-                  placeholder="Enter login ID"
+                  placeholder="Enter your user ID"
                   className="w-full pl-10 pr-4 py-3 bg-slate-950/90 border border-slate-700/80 rounded-2xl text-sm font-mono font-bold text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 transition-all shadow-inner"
                 />
                 <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -194,9 +183,9 @@ export const LoginPage: React.FC = () => {
               <label className="block text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5 text-sky-400" />
-                  Cockpit Clearance Key
+                  Cockpit Security Key
                 </span>
-                <span className="text-[10px] text-emerald-400 font-bold">256-BIT SECURED</span>
+                <span className="text-[10px] text-emerald-400 font-bold">256-BIT ENCRYPTED</span>
               </label>
 
               <div className="relative">
@@ -205,7 +194,7 @@ export const LoginPage: React.FC = () => {
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="Enter password"
+                  placeholder="Enter authorization password"
                   className="w-full pl-10 pr-10 py-3 bg-slate-950/90 border border-slate-700/80 rounded-2xl text-sm font-mono font-bold text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400 transition-all shadow-inner"
                 />
                 <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -213,6 +202,7 @@ export const LoginPage: React.FC = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                  title={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -261,7 +251,7 @@ export const LoginPage: React.FC = () => {
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>ENGAGING FLIGHT DECK...</span>
+                  <span>AUTHENTICATING FLIGHT DECK...</span>
                 </>
               ) : (
                 <>
@@ -272,21 +262,11 @@ export const LoginPage: React.FC = () => {
               )}
             </button>
 
-            {/* Quick 1-Click Fill Credentials Badge */}
-            <div className="pt-2">
-              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider text-center mb-1.5">
-                ⚡ 1-Click Quick Demo Login:
-              </div>
-              <div className="flex items-center justify-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => handleQuickLogin('admin', 'Arif@2026')}
-                  className="px-2.5 py-1 rounded-xl bg-slate-800/80 hover:bg-sky-950/70 border border-slate-700 hover:border-sky-500/50 text-[10.5px] font-mono text-sky-300 transition-all hover:scale-105 active:scale-95 flex items-center gap-1"
-                >
-                  <span>👑 Admin</span>
-                  <span className="text-slate-500">|</span>
-                  <span className="text-slate-400">admin / Arif@2026</span>
-                </button>
+            {/* Enterprise Security Badge */}
+            <div className="pt-2 text-center">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800 text-[10.5px] font-mono text-slate-400">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Enterprise 256-Bit SSL Encrypted Portal</span>
               </div>
             </div>
           </form>
@@ -297,7 +277,7 @@ export const LoginPage: React.FC = () => {
               <Navigation className="w-3 h-3 text-sky-400" />
               <span>TERMINAL: CTG-AIR-01</span>
             </span>
-            <span>SYSTEM: v2026.1-RELEASE</span>
+            <span>SYSTEM: v2026.1-PROD</span>
           </div>
         </div>
       </div>
