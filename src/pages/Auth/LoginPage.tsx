@@ -6,24 +6,18 @@ import {
   Lock,
   User,
   Key,
-  Radio,
-  Compass,
   Gauge,
-  Wind,
-  Sparkles,
+  Compass,
   ChevronRight,
   AlertCircle,
   Eye,
   EyeOff,
-  Sliders,
-  CheckCircle2,
-  Terminal,
 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
 
-  const [loginId, setLoginId] = useState('admin');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -44,13 +38,7 @@ export const LoginPage: React.FC = () => {
         setError(res.error || 'Access Denied: Invalid Flight Authorization Credentials');
         setIsLoading(false);
       }
-    }, 600);
-  };
-
-  const handleFillCredentials = () => {
-    setLoginId('admin');
-    setPassword('Arif@2026');
-    setError('');
+    }, 500);
   };
 
   return (
@@ -137,7 +125,6 @@ export const LoginPage: React.FC = () => {
                   <User className="w-3.5 h-3.5 text-sky-400" />
                   Flight Admin ID / Callsign
                 </span>
-                <span className="text-[10px] text-sky-400/80">DEFAULT: admin</span>
               </label>
 
               <div className="relative">
@@ -146,7 +133,7 @@ export const LoginPage: React.FC = () => {
                   required
                   value={loginId}
                   onChange={e => setLoginId(e.target.value)}
-                  placeholder="Enter admin ID"
+                  placeholder="Enter admin ID or email"
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-700/80 rounded-2xl text-sm font-mono font-bold text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500/40 focus:border-sky-400 transition-all shadow-inner"
                 />
                 <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -160,7 +147,7 @@ export const LoginPage: React.FC = () => {
                   <Lock className="w-3.5 h-3.5 text-sky-400" />
                   Cockpit Clearance Key
                 </span>
-                <span className="text-[10px] text-emerald-400/80">KEY SECURED</span>
+                <span className="text-[10px] text-emerald-400/80">SECURE ENCRYPTION</span>
               </label>
 
               <div className="relative">
@@ -230,15 +217,10 @@ export const LoginPage: React.FC = () => {
               )}
             </button>
 
-            {/* Quick 1-Click Fill Credentials Badge */}
-            <div className="pt-2 text-center">
-              <button
-                type="button"
-                onClick={handleFillCredentials}
-                className="text-[11px] font-mono font-semibold text-slate-400 hover:text-sky-300 underline transition-colors"
-              >
-                ⚡ 1-Click Fill Admin Credentials (admin / Arif@2026)
-              </button>
+            {/* Secure Security Badge */}
+            <div className="pt-2 flex items-center justify-center gap-1.5 text-[11px] font-mono text-slate-500">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>256-Bit Encrypted Secure Flight Deck Authorization</span>
             </div>
           </form>
 
